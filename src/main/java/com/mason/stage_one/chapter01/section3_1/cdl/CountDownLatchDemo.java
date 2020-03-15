@@ -1,4 +1,4 @@
-package com.mason.chapter01.section3_1.cdl;
+package com.mason.stage_one.chapter01.section3_1.cdl;
 
 import java.util.concurrent.CountDownLatch;
 

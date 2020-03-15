@@ -1,6 +1,6 @@
-package com.mason.chapter01.section3_1.lock;
+package com.mason.stage_one.chapter01.section3_1.lock;
 
-import com.mason.chapter01.section3_1.aqs.MasonAqs;
+import com.mason.stage_one.chapter01.section3_1.aqs.MasonAqs;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;

@@ -1,6 +1,6 @@
-package com.mason.chapter01.section3_1.cdl;
+package com.mason.stage_one.chapter01.section3_1.cdl;
 
-import com.mason.chapter01.section3_1.aqs.MasonAqs;
+import com.mason.stage_one.chapter01.section3_1.aqs.MasonAqs;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

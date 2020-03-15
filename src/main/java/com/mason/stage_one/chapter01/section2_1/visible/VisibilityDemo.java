@@ -1,4 +1,4 @@
-package com.mason.chapter01.section2_1.visible;
+package com.mason.stage_one.chapter01.section2_1.visible;
 
 import java.util.concurrent.TimeUnit;
 
@@ -11,6 +11,8 @@ public class VisibilityDemo {
     // 打印出jit编译的内容（非class文件），可视化工具jitwatch进行查看
     // -server -XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly
     // -XX:+LogCompilation -XX:+LogFile=jit.log
+
+    // javap -v -p *.class
     private volatile boolean flag = true;
 
     // 默认运行在server模式下
@@ -40,5 +42,27 @@ public class VisibilityDemo {
         demo.flag = false;
 
         System.out.println("flag被置为false");
+
+        Thread t1 = new Thread(() -> {
+            System.out.println("123");
+            try {
+                Thread.sleep(1000L);
+                System.out.println("t1执行完毕了！");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        Thread t2 = new Thread(() -> {
+            try {
+                // 等待指定线程执行完毕
+                t1.join();
+                System.out.println("456");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        t1.start();
+        t2.start();
     }
 }

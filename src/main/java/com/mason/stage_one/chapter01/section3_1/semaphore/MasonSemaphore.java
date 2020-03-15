@@ -1,6 +1,6 @@
-package com.mason.chapter01.section3_1.semaphore;
+package com.mason.stage_one.chapter01.section3_1.semaphore;
 
-import com.mason.chapter01.section3_1.aqs.MasonAqs;
+import com.mason.stage_one.chapter01.section3_1.aqs.MasonAqs;
 
 /**
  * Created by WM on 2020/3/11

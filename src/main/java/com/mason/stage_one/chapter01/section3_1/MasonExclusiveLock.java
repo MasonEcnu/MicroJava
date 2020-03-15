@@ -1,4 +1,4 @@
-package com.mason.chapter01.section3_1;
+package com.mason.stage_one.chapter01.section3_1;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by WM on 2020/3/9

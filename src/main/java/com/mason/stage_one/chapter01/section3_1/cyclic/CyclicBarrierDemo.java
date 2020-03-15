@@ -1,4 +1,4 @@
-package com.mason.chapter01.section3_1.cyclic;
+package com.mason.stage_one.chapter01.section3_1.cyclic;
 
 import java.util.Queue;
 import java.util.concurrent.CyclicBarrier;

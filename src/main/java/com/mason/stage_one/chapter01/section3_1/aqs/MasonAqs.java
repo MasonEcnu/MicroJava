@@ -1,4 +1,4 @@
-package com.mason.chapter01.section3_1.aqs;
+package com.mason.stage_one.chapter01.section3_1.aqs;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
