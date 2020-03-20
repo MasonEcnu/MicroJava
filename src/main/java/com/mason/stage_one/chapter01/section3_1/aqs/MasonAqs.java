@@ -37,7 +37,7 @@ public class MasonAqs {
                 addQ = false;
             } else {
                 // 挂起当前线程
-                LockSupport.park(); // 伪唤醒，非unpark唤醒
+                LockSupport.park();
             }
         }
         // 将线程从等待集合移除
@@ -74,7 +74,7 @@ public class MasonAqs {
                 addQ = false;
             } else {
                 // 挂起当前线程
-                LockSupport.park(); // 伪唤醒，非unpark唤醒
+                LockSupport.park();
             }
         }
         // 将线程从等待集合移除
