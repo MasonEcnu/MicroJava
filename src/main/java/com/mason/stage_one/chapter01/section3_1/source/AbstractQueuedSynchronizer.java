@@ -2,6 +2,7 @@ package com.mason.stage_one.chapter01.section3_1.source;
 
 import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -37,6 +38,9 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
 
         /**
          * 当前节点释放锁的时候，需要唤醒下一个节点
+         * 同步队列中的节点在自旋获取锁的时候
+         * 如果前一个节点的状态是SIGNAL，那么自己就可以阻塞休息了
+         * 否则自己一直自旋尝试获得锁
          */
         static final int SIGNAL = -1;
 
@@ -69,15 +73,14 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
         volatile Node next;
 
         /**
-         * 当前持有锁的线程
-         * 独占模式
+         * 当前节点线程
          */
         volatile Thread thread;
 
         /**
-         * 用于标记模式
+         * 在同步队列中，用于标记模式
          * SHARED或EXCLUSIVE
-         * 在Condition队列中用于指向下一个等待节点
+         * 在Condition条件队列中用于指向下一个等待节点
          */
         Node nextWaiter;
 
@@ -130,6 +133,12 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
 
     static final long spinForTimeoutThreshold = 1000L;
 
+    /**
+     * 同步队列入队操作
+     *
+     * @param node 入队节点
+     * @return 入队节点的前一个节点
+     */
     private Node enq(final Node node) {
         for (; ; ) {
             Node t = tail;
@@ -153,6 +162,7 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
         // 将当前线程包装成一个节点Node
         Node node = new Node(Thread.currentThread(), mode);
         Node pred = tail;
+        // 快速尝试，不成功，再自旋
         if (pred != null) {
             node.prev = pred;
             // 用cas快速尝试设置队尾，pred为原队尾
@@ -161,7 +171,7 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
                 return node;
             }
         }
-        // cas更新队尾失败后，再使用enq方法，循环设置队尾，用的还是cas技术
+        // cas更新队尾失败后，再使用enq方法，自旋设置队尾，用的还是cas技术
         enq(node);
         return node;
     }
@@ -180,6 +190,7 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
          */
         int ws = node.waitStatus;
         if (ws < 0)
+            // 对于独占锁来说，SIGNAL=-1
             // 将waitStatus设置为0
             compareAndSetWaitStatus(node, ws, 0);
 
@@ -194,6 +205,7 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
         Node s = node.next;
         if (s == null || s.waitStatus > 0) {
             s = null;
+            // 从后往前找
             for (Node t = tail; t != null && t != node; t = t.prev)
                 if (t.waitStatus <= 0)
                     s = t;
@@ -304,6 +316,18 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
         }
     }
 
+    /**
+     * 当前线程可以安心阻塞的标准，就是前一个节点线程状态是SIGNAL了。
+     * 入参 pred 是前一个节点node是当前节点。
+     * <p>
+     * 关键操作：
+     * 1：确认前一个节点是否有效，无效的话，一直往前找到状态不是取消的节点。
+     * 2: 把前一个节点状态置为SIGNAL。
+     *
+     * @param pred node的前驱节点
+     * @param node 当前节点
+     * @return 是否需要park
+     */
     private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
         int ws = pred.waitStatus;
         if (ws == Node.SIGNAL)
@@ -313,7 +337,7 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
              */
             /*
              * 只有当前节点的前驱的waitStatus==Node.SIGNAL
-             * 当前节点会被阻塞，才有可能会被唤醒
+             * 当前节点被阻塞，才有可能会被唤醒
              */
             return true;
         if (ws > 0) {
@@ -337,7 +361,7 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
              * retry to make sure it cannot acquire before parking.
              */
             /*
-             * 将当前节点的前驱waitStatus设置为SIGNAL
+             * 将找到的有效前驱节点的waitStatus设置为SIGNAL
              */
             compareAndSetWaitStatus(pred, ws, Node.SIGNAL);
         }
@@ -354,13 +378,15 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
         return Thread.interrupted();
     }
 
-    /*
-     * Various flavors of acquire, varying in exclusive/shared and
-     * control modes.  Each is mostly the same, but annoyingly
-     * different.  Only a little bit of factoring is possible due to
-     * interactions of exception mechanics (including ensuring that we
-     * cancel if tryAcquire throws exception) and other control, at
-     * least not without hurting performance too much.
+    /**
+     * 主要做两件事情：
+     * 1：通过不断的自旋尝试使自己前一个节点的状态变成 signal，然后阻塞自己。
+     * 2：获得锁的线程执行完成之后，释放锁时，会把阻塞的 node 唤醒,node 唤醒之后再次自旋，尝试获得锁
+     * 返回 false 表示获得锁成功，返回 true 表示失败
+     *
+     * @param node 入队节点
+     * @param arg  state参数
+     * @return 是否中断
      */
     final boolean acquireQueued(final Node node, int arg) {
         boolean failed = true;
@@ -372,6 +398,17 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
                 final Node p = node.predecessor();
                 // 如果当前节点的前驱为头节点
                 // 则再次尝试获取锁
+
+                // 有两种情况会走到 p == head：
+                // 1:node之前没有获得锁
+                // 进入acquireQueued方法时
+                // 才发现他的前置节点就是头节点，于是尝试获得一次锁；
+
+                // 2:node之前一直在阻塞沉睡
+                // 然后被唤醒，此时唤醒 node 的节点正是其前一个节点，也能走到if
+                // 如果自己 tryAcquire 成功，就立马把自己设置成 head，把上一个节点移除
+
+                // 如果 tryAcquire 失败，尝试进入同步队列
                 if (p == head && tryAcquire(arg)) {
                     // 获取成功后，将当前节点设置为头节点
                     setHead(node);
@@ -386,9 +423,13 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
                  */
                 if (shouldParkAfterFailedAcquire(p, node) &&
                         parkAndCheckInterrupt())
+                    // parkAndCheckInterrupt
+                    // 线程是在这个方法里面阻塞的
+                    // 醒来的时候仍然在无限for循环里面，就能再次自旋尝试获得锁
                     interrupted = true;
             }
         } finally {
+            // 如果获得node的锁失败，将 node 从队列中移除
             if (failed)
                 cancelAcquire(node);
         }
@@ -559,8 +600,11 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
     }
 
     public final void acquire(int arg) {
+        // 尝试获取锁
+        // 失败则添加到同步队列队尾
         if (!tryAcquire(arg) &&
                 acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+            // 自我中断
             selfInterrupt();
     }
 
@@ -593,6 +637,11 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
             // 头节点不为空
             // 头节点的waitStatus肯定不为1（CANCELLED）
             // waitStatus为其他状态，唤醒下一个节点
+
+            // 而同步队列中，节点的waitStatus不可能为CONDITION
+            // 独占锁的waitStatus不可能为PROPAGATE
+            // 所以，这里waitStatus=SIGNAL
+            // 释放完毕，去唤醒下一个节点
             Node h = head;
             if (h != null && h.waitStatus != 0)
                 unparkSuccessor(h);
@@ -709,11 +758,14 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
         // 1.h=null,t=null，队列为空，直接返回false
         // 2.队列不为空，但仅有一个节点，即就是h=t，此时h!=t返回false
         // 3.队列不为空，且有多于1个节点
-        //   此时h!=t为true，s=h.next
+        //   则有h!=t为true，s=h.next
+
         //   此时s理论上不可能为null，因为链表最少两个节点的情况下，应该有h.next==t
         //   此时判断s.thread
         //   如果s.thread==Thread.currentThread()当前线程
-        //   也就是说当前线程已经在队列里了，就不需要重复排队了，返回false
+        //   也就是说当前线程已经在队列里了，并且是头结点的下一个节点，返回false
+        //   可以尝试获取锁
+
         //   如果s.thread != Thread.currentThread()
         //   则当前线程需要排队，返回true
         return h != t &&
@@ -777,9 +829,10 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
 
     final boolean isOnSyncQueue(Node node) {
         // 同步队列中的节点，waitStatus不可能等于CONDITION
+        // node.prev == null：头节点
         if (node.waitStatus == Node.CONDITION || node.prev == null)
             return false;
-        // 同步队列中的接地那，next才不为null？
+        // 条件的队列中，Node.nextWaiter用于指向下一节点
         if (node.next != null) // If has successor, it must be on queue
             return true;
         /*
@@ -793,6 +846,7 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
         return findNodeFromTail(node);
     }
 
+    // 从尾部开始找node节点，在同步队列中
     private boolean findNodeFromTail(Node node) {
         Node t = tail;
         for (; ; ) {
@@ -1170,7 +1224,7 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
         }
     }
 
-    private static final Unsafe unsafe = Unsafe.getUnsafe();
+    private static final Unsafe unsafe;
     private static final long stateOffset;
     private static final long headOffset;
     private static final long tailOffset;
@@ -1179,6 +1233,10 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
 
     static {
         try {
+            Field field = Unsafe.class.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            unsafe = (Unsafe) field.get(null);
+
             stateOffset = unsafe.objectFieldOffset
                     (AbstractQueuedSynchronizer.class.getDeclaredField("state"));
             headOffset = unsafe.objectFieldOffset

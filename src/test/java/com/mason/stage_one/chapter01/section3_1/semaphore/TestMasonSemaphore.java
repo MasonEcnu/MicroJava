@@ -29,7 +29,7 @@ public class TestMasonSemaphore {
                 }
             }).start();
         }
-        Thread.sleep(100000L);
+        Thread.sleep(10000L);
     }
 
     // 限流，5个线程同时访问

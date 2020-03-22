@@ -1,6 +1,7 @@
 package com.mason.stage_one.chapter01.section3_1.lock;
 
-import java.util.concurrent.locks.ReentrantLock;
+
+import com.mason.stage_one.chapter01.section3_1.source.ReentrantLock;
 
 /**
  * Created by mwu on 2020/3/20
