@@ -1,21 +1,17 @@
-package com.mason.stage_one.chapter01.section3_1.semaphore;
-
-import org.junit.Test;
+package com.mason.stage_one.chapter_one.section_three.semaphore;
 
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by WM on 2020/3/11
  */
-public class TestMasonSemaphore {
+public class SemaphoreDemo {
 
-    // junit无法测试多线程的程序
-    // 会自动调用System.exit(0)
-    @Test
-    public void testMasonSemaphore() throws InterruptedException {
-        TestMasonSemaphore demo = new TestMasonSemaphore();
+    public static void main(String[] args) {
+        SemaphoreDemo demo = new SemaphoreDemo();
         // 限制请求数量
-        MasonSemaphore semaphore = new MasonSemaphore(5);
+        Semaphore semaphore = new Semaphore(5);
         int N = 10;
         for (int i = 0; i < N; i++) {
             String vipNo = "Vip-00" + i;
@@ -29,7 +25,6 @@ public class TestMasonSemaphore {
                 }
             }).start();
         }
-        Thread.sleep(10000L);
     }
 
     // 限流，5个线程同时访问

@@ -1,4 +1,4 @@
-package com.mason.stage_one.chapter01.practice;
+package com.mason.stage_one.chapter_one.practice;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -9,6 +9,6 @@ public class AtomDemo {
 
     public static void main(String[] args) {
         AtomicInteger atomicInteger = new AtomicInteger(0);
-        atomicInteger.getAndIncrement();
+        System.out.println(atomicInteger.incrementAndGet());
     }
 }

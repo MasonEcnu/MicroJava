@@ -1,7 +1,7 @@
-package com.mason.stage_one.chapter01.section3_1.lock;
+package com.mason.stage_one.chapter_one.section_three.lock;
 
 
-import com.mason.stage_one.chapter01.section3_1.source.ReentrantLock;
+import com.mason.stage_one.chapter_one.section_three.source.ReentrantLock;
 
 /**
  * Created by mwu on 2020/3/20

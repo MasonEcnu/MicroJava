@@ -1,4 +1,4 @@
-package com.mason.stage_one.chapter01.section3_1.lock;
+package com.mason.stage_one.chapter_one.section_three.lock;
 
 import org.junit.Test;
 

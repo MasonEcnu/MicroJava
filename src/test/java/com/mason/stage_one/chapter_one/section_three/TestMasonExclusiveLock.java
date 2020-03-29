@@ -1,4 +1,4 @@
-package com.mason.stage_one.chapter01.section3_1;
+package com.mason.stage_one.chapter_one.section_three;
 
 import org.junit.Test;
 
