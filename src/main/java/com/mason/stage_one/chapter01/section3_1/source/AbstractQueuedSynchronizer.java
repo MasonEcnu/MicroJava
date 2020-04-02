@@ -284,7 +284,7 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
         while (pred.waitStatus > 0)
             node.prev = pred = pred.prev;
 
-        // predNext is the apparent node to unsplice. CASes below will
+        // predNext is the apparent node acquireByShared to unsplice. CASes below will
         // fail if not, in which case, we lost race vs another cancel
         // or signal, so no further action is necessary.
         Node predNext = pred.next;
@@ -748,6 +748,9 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
     }
 
     // 好像解释的不太对
+    // 公平锁加锁时判断等待队列中是否存在有效节点的方法
+    // 如果返回False，说明当前线程可以争取共享资源；
+    // 如果返回True，说明队列中存在有效节点，当前线程必须加入到等待队列中
     public final boolean hasQueuedPredecessors() {
         // The correctness of this depends on head being initialized
         // before tail and on head.next being accurate if the current
@@ -770,6 +773,17 @@ public abstract class AbstractQueuedSynchronizer extends AbstractOwnableSynchron
         //   则当前线程需要排队，返回true
         return h != t &&
                 ((s = h.next) == null || s.thread != Thread.currentThread());
+
+        // 双向链表中，第一个节点为虚节点，其实并不存储任何信息，只是占位。
+        // 真正的第一个有数据的节点，是在第二个节点开始的。
+        // 当h != t时： 如果(s = h.next) == null，等待队列正在有线程进行初始化，
+        // 但只是进行到了Tail指向Head，没有将Head指向Tail，此时队列中有元素，需要返回True（这块具体见下边代码分析）。
+        //
+        // 如果(s = h.next) != null，说明此时队列中至少有一个有效节点。
+        // 如果此时s.thread == Thread.currentThread()，说明等待队列的第一个有效节点中的线程与当前线程相同，
+        // 那么当前线程是可以获取资源的；
+        //
+        // 如果s.thread != Thread.currentThread()，说明等待队列的第一个有效节点线程与当前线程不同，当前线程必须加入进等待队列。
     }
 
 
