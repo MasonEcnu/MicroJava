@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by WM on 2020/3/9
@@ -28,6 +29,7 @@ public class MasonExclusiveLock implements Lock {
 
     @Override
     public void lock() {
+        ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
         boolean addQ = true;
         while (!tryLock()) {
             if (addQ) {

@@ -12,6 +12,7 @@ public class VisibilityDemo {
     // -server -XX:+UnlockDiagnosticVMOptions -XX:+PrintAssembly
     // -XX:+LogCompilation -XX:+LogFile=jit.log
 
+    // 关闭jit优化：-Djava.compiler=NONE
     // javap -v -p *.class
     private volatile boolean flag = true;
 
