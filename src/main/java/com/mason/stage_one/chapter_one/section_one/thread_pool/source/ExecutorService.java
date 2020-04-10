@@ -1,15 +1,22 @@
-package com.mason.stage_one.chapter_one.section_one.thread_pool;
+package com.mason.stage_one.chapter_one.section_one.thread_pool.source;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by WM on 2020/3/29
  */
 public interface ExecutorService extends Executor {
 
-    // 关闭线程池，池子内的任务会被执行，但是不会再接收新任务
+    /**
+     * 关闭线程池
+     * 不接受新任务
+     * 执行已存在的任务，但不等待它们执行结束
+     * awaitTermination
+     */
     void shutdown();
 
     /**
@@ -29,7 +36,7 @@ public interface ExecutorService extends Executor {
 
     /**
      * 检测ExecutorService是否已经关闭
-     * 知道所有任务执行完毕
+     * 直到所有任务执行完毕
      * 或超时、或当前线程中断
      *
      * @param timeout 超时时间
@@ -100,11 +107,31 @@ public interface ExecutorService extends Executor {
                                   long timeout, TimeUnit unit)
             throws InterruptedException;
 
-    // 给定任务集合中，任意一个执行完毕，则返回
+    /**
+     * 给定任务集合中
+     * 任意一个执行完毕
+     * 则返回
+     *
+     * @param tasks 任务集合
+     * @param <T>   泛型
+     * @return 执行完成的任务
+     * @throws InterruptedException 中断异常
+     * @throws ExecutionException   执行异常
+     */
     <T> T invokeAny(Collection<? extends Callable<T>> tasks)
             throws InterruptedException, ExecutionException;
 
-    // 给定任务集合中，任意一个执行完毕或超时，则返回
+    /**
+     * 给定任务集合中
+     * 任意一个执行完毕或超时
+     * 则返回
+     *
+     * @param tasks 任务集合
+     * @param <T>   泛型
+     * @return 执行完成的任务
+     * @throws InterruptedException 中断异常
+     * @throws ExecutionException   执行异常
+     */
     <T> T invokeAny(Collection<? extends Callable<T>> tasks,
                     long timeout, TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException;

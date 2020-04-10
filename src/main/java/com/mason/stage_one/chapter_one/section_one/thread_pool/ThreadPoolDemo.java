@@ -1,5 +1,7 @@
 package com.mason.stage_one.chapter_one.section_one.thread_pool;
 
+import com.google.common.math.LongMath;
+
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -276,13 +278,15 @@ public class ThreadPoolDemo {
 
     public static void main(String[] args) throws Exception {
         ThreadPoolDemo demo = new ThreadPoolDemo();
-//        demo.threadPoolExecutorTest1();
+        demo.threadPoolExecutorTest1();
 //        demo.threadPoolExecutorTest2();
 //        demo.threadPoolExecutorTest3();
 //        demo.threadPoolExecutorTest4();
 //        demo.threadPoolExecutorTest5();
 //        demo.threadPoolExecutorTest6();
 //        demo.threadPoolExecutorTest7();
-        demo.threadPoolExecutorTest8();
+//        demo.threadPoolExecutorTest8();
+
+        System.out.println(LongMath.checkedSubtract(100, 1));
     }
 }
