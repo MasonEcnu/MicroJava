@@ -30,6 +30,7 @@ import static com.mason.Constants.SERVER_PORT;
 
 /**
  * Echoes back any received data from a client.
+ * 测试将core.autocrlf设置为true
  */
 public final class EchoServer {
 
