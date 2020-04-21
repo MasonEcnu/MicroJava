@@ -37,6 +37,12 @@ public abstract class AbstractNioMessageChannel extends AbstractNioChannel {
         super(parent, ch, readInterestOp);
     }
 
+    /**
+     * Mason Annotation
+     * 创建Unsafe对象
+     *
+     * @return {@link NioMessageUnsafe}
+     */
     @Override
     protected AbstractNioUnsafe newUnsafe() {
         return new NioMessageUnsafe();

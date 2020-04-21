@@ -419,6 +419,14 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         }
     }
 
+    /**
+     * Mason Annotation
+     * 每一个NioEventLoop对应一个线程
+     * 当有任务提交后，触发执行
+     * 执行两件事
+     * 1.selector.select事件
+     * 2.taskQueue里面的内容
+     */
     @Override
     protected void run() {
         int selectCnt = 0;
@@ -478,6 +486,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                 } else if (strategy > 0) {
                     final long ioStartTime = System.nanoTime();
                     try {
+                        // 处理事件
                         processSelectedKeys();
                     } finally {
                         // Ensure we always run tasks.
@@ -677,9 +686,11 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         }
 
         try {
+            // 获取注册事件
             int readyOps = k.readyOps();
             // We first need to call finishConnect() before try to trigger a read(...) or write(...) as otherwise
             // the NIO JDK channel implementation may throw a NotYetConnectedException.
+            // 连接事件
             if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
                 // remove OP_CONNECT as otherwise Selector.select(..) will always return without blocking
                 // See https://github.com/netty/netty/issues/924
@@ -691,6 +702,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
             }
 
             // Process OP_WRITE first as we may be able to write some queued buffers and so free memory.
+            // 写事件
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                 // Call forceFlush which will also take care of clear the OP_WRITE once there is nothing left to write
                 ch.unsafe().forceFlush();
@@ -699,9 +711,12 @@ public final class NioEventLoop extends SingleThreadEventLoop {
             // Also check for readOps of 0 to workaround possible JDK bug which may otherwise lead
             // to a spin loop
             if ((readyOps & (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != 0 || readyOps == 0) {
+                // 读事件和接收连接事件
                 unsafe.read();
             }
         } catch (CancelledKeyException ignored) {
+            // ServerSocketChannel用的是NioMessageUnsafe
+            // SocketChannel用的是NioByteUnsafe
             unsafe.close(unsafe.voidPromise());
         }
     }

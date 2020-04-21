@@ -36,7 +36,9 @@ public abstract class MultithreadEventLoopGroup extends MultithreadEventExecutor
 
     private static final int DEFAULT_EVENT_LOOP_THREADS;
 
+    // Mason Annotation
     static {
+        // 默认值CPU数*2
         DEFAULT_EVENT_LOOP_THREADS = Math.max(1, SystemPropertyUtil.getInt(
                 "io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
 
@@ -81,8 +83,11 @@ public abstract class MultithreadEventLoopGroup extends MultithreadEventExecutor
     @Override
     protected abstract EventLoop newChild(Executor executor, Object... args) throws Exception;
 
+    // Mason Annotation
     @Override
     public ChannelFuture register(Channel channel) {
+        // 根据选择器，选择一个合适的NioEventLoop进行注册
+        // SingleThreadEventLoop
         return next().register(channel);
     }
 

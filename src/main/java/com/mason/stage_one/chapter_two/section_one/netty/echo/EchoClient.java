@@ -52,8 +52,8 @@ public final class EchoClient {
         // Configure the client.
         EventLoopGroup group = new NioEventLoopGroup();
         try {
-            Bootstrap b = new Bootstrap();
-            b.group(group)
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(group)
                     .channel(NioSocketChannel.class)
                     .option(ChannelOption.TCP_NODELAY, true)
                     .handler(new ChannelInitializer<SocketChannel>() {
@@ -69,10 +69,10 @@ public final class EchoClient {
                     });
 
             // Start the client.
-            ChannelFuture f = b.connect(SERVER_HOST, SERVER_PORT).sync();
+            ChannelFuture future = bootstrap.connect(SERVER_HOST, SERVER_PORT).sync();
 
             // Wait until the connection is closed.
-            f.channel().closeFuture().sync();
+            future.channel().closeFuture().sync();
         } finally {
             // Shut down the event loop to terminate all threads.
             group.shutdownGracefully();

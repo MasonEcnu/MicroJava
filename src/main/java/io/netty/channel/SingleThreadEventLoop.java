@@ -75,14 +75,18 @@ public abstract class SingleThreadEventLoop extends SingleThreadEventExecutor im
         return (EventLoop) super.next();
     }
 
+    // Mason Annotation
     @Override
     public ChannelFuture register(Channel channel) {
+        // 执行注册的相关逻辑
         return register(new DefaultChannelPromise(channel, this));
     }
 
     @Override
     public ChannelFuture register(final ChannelPromise promise) {
+        // NioServerSocketChannel -> NioMessageUnsafe
         ObjectUtil.checkNotNull(promise, "promise");
+        // 调用channel中unsafe对象的注册方法，AbstractUnsafe
         promise.channel().unsafe().register(this, promise);
         return promise;
     }

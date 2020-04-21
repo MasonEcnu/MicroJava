@@ -15,6 +15,7 @@
  */
 package io.netty.bootstrap;
 
+import io.netty.channel.ChannelFactory;
 import io.netty.channel.*;
 import io.netty.util.AttributeKey;
 import io.netty.util.internal.ObjectUtil;
@@ -116,6 +117,13 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
         return this;
     }
 
+    /**
+     * Mason Annotation
+     * 通道初始化
+     * {@link AbstractBootstrap#initAndRegister#init(Channel)}
+     *
+     * @param channel {@link ChannelFactory#newChannel()}
+     */
     @Override
     void init(Channel channel) {
         setChannelOptions(channel, newOptionsArray(), logger);

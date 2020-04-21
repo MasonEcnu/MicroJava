@@ -807,8 +807,11 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
     }
 
     private void execute(Runnable task, boolean immediate) {
+        // 判断execute方法调用者是不是和EventLoop同一个线程
         boolean inEventLoop = inEventLoop();
+        // 增加任务到队列
         addTask(task);
+        // 不是同一个线程，则调用启动方法
         if (!inEventLoop) {
             startThread();
             if (isShutdown()) {

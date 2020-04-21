@@ -239,8 +239,22 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
         return this;
     }
 
+    /**
+     * Mason Annotation
+     * <p>
+     * bind() -> dobind() -> dobind0()
+     * {@link io.netty.bootstrap.AbstractBootstrap#bind(int)} )}
+     * <p>
+     * 核心绑定实现在channel抽象类中
+     *
+     * @param localAddress SocketAddress
+     * @param promise      ChannelPromise
+     * @return ChannelFuture
+     */
     @Override
     public ChannelFuture bind(SocketAddress localAddress, ChannelPromise promise) {
+        // 这里触发netty责任链中的bind事件
+        // 由应用代码发起到底层，属于outBound
         return pipeline.bind(localAddress, promise);
     }
 
@@ -447,6 +461,13 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
             return remoteAddress0();
         }
 
+        /**
+         * Mason Annotation
+         * {@link SingleThreadEventLoop#register(ChannelPromise)}
+         *
+         * @param eventLoop {@link SingleThreadEventLoop}
+         * @param promise   {@link ChannelPromise}
+         */
         @Override
         public final void register(EventLoop eventLoop, final ChannelPromise promise) {
             ObjectUtil.checkNotNull(eventLoop, "eventLoop");
@@ -462,7 +483,10 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
             AbstractChannel.this.eventLoop = eventLoop;
 
+            // 如果调用register方法的线程何EventLoop执行线程不是同一个
+            // 则以任务形式提交绑定操作
             if (eventLoop.inEventLoop()) {
+                // 注册实际调用方法
                 register0(promise);
             } else {
                 try {

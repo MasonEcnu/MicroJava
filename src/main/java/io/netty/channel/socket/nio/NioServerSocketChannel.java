@@ -15,6 +15,7 @@
  */
 package io.netty.channel.socket.nio;
 
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelMetadata;
 import io.netty.channel.ChannelOption;
@@ -59,6 +60,8 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
              *
              *  See <a href="https://github.com/netty/netty/issues/2308">#2308</a>.
              */
+            // java中的ServerSocketChannel
+            // ServerSocketChannelImpl
             return provider.openServerSocketChannel();
         } catch (IOException e) {
             throw new ChannelException(
@@ -69,6 +72,8 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
     private final ServerSocketChannelConfig config;
 
     /**
+     * Mason Annotation
+     * {@link ServerBootstrap#channel(Class)}
      * Create a new instance
      */
     public NioServerSocketChannel() {

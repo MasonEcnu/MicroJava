@@ -19,8 +19,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
 import io.netty.channel.Channel;
+import io.netty.channel.*;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ReferenceCounted;
 import io.netty.util.internal.logging.InternalLogger;
@@ -362,6 +362,12 @@ public abstract class AbstractNioChannel extends AbstractChannel {
         return loop instanceof NioEventLoop;
     }
 
+    /**
+     * Mason Annotation
+     * {@link AbstractChannel#doRegister()}
+     *
+     * @throws Exception {@link CancelledKeyException}
+     */
     @Override
     protected void doRegister() throws Exception {
         boolean selected = false;

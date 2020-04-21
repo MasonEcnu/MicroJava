@@ -51,8 +51,8 @@ public final class EchoServer {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         final EchoServerHandler serverHandler = new EchoServerHandler();
         try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 100)
                     .handler(new LoggingHandler(LogLevel.INFO))
@@ -69,10 +69,10 @@ public final class EchoServer {
                     });
 
             // Start the server.
-            ChannelFuture f = b.bind(SERVER_PORT).sync();
+            ChannelFuture future = bootstrap.bind(SERVER_PORT).sync();
 
             // Wait until the server socket is closed.
-            f.channel().closeFuture().sync();
+            future.channel().closeFuture().sync();
         } finally {
             // Shut down all event loops to terminate all threads.
             bossGroup.shutdownGracefully();
