@@ -9,7 +9,7 @@ buildscript {
 
     repositories {
         maven {
-            url = uri("https://maven.aliyun.com/repository/central")
+            url = uri("https://maven.aliyun.com/repository/public")
         }
 //        mavenCentral()
     }
@@ -35,7 +35,7 @@ val string_boot_version: String by extra
 
 repositories {
     maven {
-        url = uri("https://maven.aliyun.com/repository/central")
+        url = uri("https://maven.aliyun.com/repository/public")
     }
 //        mavenCentral()
 }
