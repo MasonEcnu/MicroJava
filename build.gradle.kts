@@ -78,3 +78,9 @@ configure<JavaPluginConvention> {
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
+tasks.withType<JavaCompile> {
+    options.isFork = true
+    options.encoding = "UTF-8"
+    options.forkOptions.executable = "javac"
+    options.compilerArgs.add("-XDignore.symbol.file")
+}

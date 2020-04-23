@@ -37,7 +37,7 @@ public class PipelineDemo {
         pipeline.addLast(new SecondHandler());
 
         // 发起请求
-        pipeline.requestProcess("~~~嘿哈~~呼哈~~~");
+        pipeline.requestProcess("~~~嘿哈<=>呼哈~~~");
     }
 }
 
