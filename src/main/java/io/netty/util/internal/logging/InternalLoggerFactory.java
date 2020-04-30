@@ -41,12 +41,15 @@ public abstract class InternalLoggerFactory {
     private static InternalLoggerFactory newDefaultFactory(String name) {
         InternalLoggerFactory f;
         try {
-            f = new Slf4JLoggerFactory(true);
-            f.newInstance(name).debug("Using SLF4J as the default logging framework");
+            throw new RuntimeException();
+            // todo 日志太多了，真烦，还找不到到底读的是哪个配置文件，干脆注释掉得了
+//            f = new Slf4JLoggerFactory(true);
+//            f.newInstance(name).debug("Using SLF4J as the default logging framework");
         } catch (Throwable ignore1) {
             try {
-                f = Log4J2LoggerFactory.INSTANCE;
-                f.newInstance(name).debug("Using Log4J2 as the default logging framework");
+                throw new RuntimeException();
+//                f = Log4J2LoggerFactory.INSTANCE;
+//                f.newInstance(name).debug("Using Log4J2 as the default logging framework");
             } catch (Throwable ignore2) {
                 try {
                     f = Log4JLoggerFactory.INSTANCE;

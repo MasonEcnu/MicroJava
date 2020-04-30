@@ -27,6 +27,10 @@ import static io.netty.util.internal.ObjectUtil.checkPositiveOrZero;
  * Skeletal {@link ByteBufAllocator} implementation to extend.
  */
 public abstract class AbstractByteBufAllocator implements ByteBufAllocator {
+    // Mason Annotation
+    // ByteBuf默认大小256字节
+    // 最大：Integer.MAX_VALUE=2G
+    // 阈值：1048576 * 4; // 4 MiB page
     static final int DEFAULT_INITIAL_CAPACITY = 256;
     static final int DEFAULT_MAX_CAPACITY = Integer.MAX_VALUE;
     static final int DEFAULT_MAX_COMPONENTS = 16;
@@ -263,6 +267,12 @@ public abstract class AbstractByteBufAllocator implements ByteBufAllocator {
 
         // If over threshold, do not double but just increase by threshold.
         if (minNewCapacity > threshold) {
+            // Mason Annotation
+            // 超过阈值的4M大小
+            // 则新容量=最小容量要求 / 4 * 4
+            // 结果应该是距离最小容量要求最近的阈值的倍数+阈值
+            // 不超过最大容量
+            // 也就是最终的结果应该是阈值的倍数
             int newCapacity = minNewCapacity / threshold * threshold;
             if (newCapacity > maxCapacity - threshold) {
                 newCapacity = maxCapacity;
@@ -273,6 +283,8 @@ public abstract class AbstractByteBufAllocator implements ByteBufAllocator {
         }
 
         // Not over threshold. Double up to 4 MiB, starting from 64.
+        // Mason Annotation
+        // 最小扩容大小
         int newCapacity = 64;
         while (newCapacity < minNewCapacity) {
             newCapacity <<= 1;

@@ -4,8 +4,11 @@ buildscript {
     var kotlin_version: String by extra
     kotlin_version = "1.3.72"
 
-    var string_boot_version: String by extra
-    string_boot_version = "2.2.6.RELEASE"
+    var spring_boot_version: String by extra
+    spring_boot_version = "2.2.6.RELEASE"
+
+    var spring_version: String by extra
+    spring_version = "5.2.5.RELEASE"
 
     repositories {
         maven {
@@ -31,7 +34,8 @@ apply {
 }
 
 val kotlin_version: String by extra
-val string_boot_version: String by extra
+val spring_boot_version: String by extra
+val spring_version: String by extra
 
 repositories {
     maven {
@@ -45,8 +49,6 @@ dependencies {
     implementation("com.google.guava:guava:28.2-jre")
     implementation("org.apache.commons:commons-lang3:3.10")
     implementation("com.alibaba:fastjson:1.2.68")
-    implementation("org.springframework.boot:spring-boot-starter:$string_boot_version")
-    implementation("org.springframework.boot:spring-boot-starter-web:$string_boot_version")
 //    implementation("io.netty:netty-all:4.1.48.Final")
     implementation("org.bouncycastle:bcpkix-jdk15on:1.65")
     implementation("org.bidib.jbidib.org.qbang.rxtx:rxtxcomm:2.2")
@@ -66,10 +68,14 @@ dependencies {
     implementation("com.fasterxml:aalto-xml:1.2.2")
     implementation("io.projectreactor.tools:blockhound:1.0.3.RELEASE")
     implementation("com.google.protobuf.nano:protobuf-javanano:3.1.0")
+    implementation("org.springframework.boot:spring-boot-starter:$spring_boot_version")
+    implementation("org.springframework.boot:spring-boot-starter-web:$spring_boot_version")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis:$spring_boot_version")
+    implementation("org.springframework.integration:spring-integration-redis:$spring_version")
     implementation(kotlin("stdlib-jdk8", kotlin_version))
     implementation(kotlin("reflect", kotlin_version))
     testImplementation("junit", "junit", "4.12")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$string_boot_version")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$spring_boot_version")
 }
 
 configure<JavaPluginConvention> {
@@ -82,5 +88,5 @@ tasks.withType<JavaCompile> {
     options.isFork = true
     options.encoding = "UTF-8"
     options.forkOptions.executable = "javac"
-    options.compilerArgs.add("-XDignore.symbol.file")
+    options.compilerArgs.addAll(listOf("-XDignore.symbol.file"))
 }

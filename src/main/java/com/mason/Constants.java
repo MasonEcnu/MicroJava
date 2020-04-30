@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
  * Created by WM on 2020/4/14
  */
 public interface Constants {
+
     // 默认地址
     String SERVER_HOST = "localhost";
 
@@ -18,5 +19,8 @@ public interface Constants {
 
     // buffer大小
     int SERVER_BUFFER_SIZE = 256;
+
+    // byte大小
+    int SERVER_BYTE_SIZE = 1024;
 
 }
